@@ -410,6 +410,22 @@ class project_paths implements Serializable
 // -- MAIN
 // Following this line is the start of MAIN of this Jenkinsfile
 
+// Integration testing is a special path which implies testing of an upsteam build of hcc,
+// but does not need testing across older builds of hcc or cuda.  This is more of a compiler
+// hcc unit test
+//  params.hcc_integration_test is set in HCC build
+if( params.hcc_integration_test )
+{
+  println "HCC integration testing"
+
+  node('docker && rocm')
+  {
+    hip_integration_testing( '--device=/dev/kfd', 'hcc-ctu', build_config )
+  }
+
+  return
+}
+
 // This defines a common build pipeline used by most targets
 def build_pipeline( compiler_data compiler_args, docker_data docker_args, project_paths rocblas_paths, def docker_inside_closure )
 {
